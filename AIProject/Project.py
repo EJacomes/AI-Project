@@ -166,10 +166,10 @@ def BFS(StartingNode):
     print("BFS was able to reach to goal node [0, 0, 0] in",numNodes,'nodes')
 
 
-time1 = time()
-BFS(initialNode)
-time2 = time() - time1
-print("The time it took for BFS to reach the goal was", time2, "seconds")
+#time1 = time()
+#BFS(initialNode)
+#time2 = time() - time1
+#print("The time it took for BFS to reach the goal was", time2, "seconds")
 
 #time3 = time()
 #initialNode = [6, 6, 1]
@@ -180,3 +180,34 @@ print("The time it took for BFS to reach the goal was", time2, "seconds")
 #A* search version
 openA = []
 closedA = []
+leftSideA = []
+rightSideA = []
+#var initialNode and TargetNode will be used for A* Search as well
+
+#This A* search will use f(n) = g(n) + h(n) which will calculate the total amount of actions that are used
+#g(n) is the number of trips that was taken from the starting node to the current node being looked at (i.e. 3, 3, 1 -> 2, 2, 0 then g(n) = 1)
+#since one trip was taken from the beginning side to the other side
+#h(n) is the number of trips that could be taken from the current node to the goal node (i.e. 3, 3, 1 -> 0, 0, 0 then h(n) = 9)
+#since there were 9 trips taken in order to move the missionaries from the beginning to the other side
+
+#when looking at the nodes which has the smalles f(n), we will first need to get rid of any nodes that will be breaking the rule of having
+#more cannibals then missionaries in either side. 
+#once there are only valid nodes left then we look at the g and h values of each node and sum it up to see which node has the smallest f(n) value
+#once the node with the smallest f(n) value is selected then all of the other nodes in that grouping will sent to the closed list
+#that selected node will have the new nodes made of it and the process will repeat until the goal is reached
+
+def isValidA(left, right):
+    
+    return True
+
+tii = [3,2,1]
+itt = 2
+ion = []
+ion.append(tii)
+ion.append(itt)
+p = []
+p.append(ion)
+print(p)
+print(p[0])
+print(p[0][0])
+print(p[0][0][0])
