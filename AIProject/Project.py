@@ -180,7 +180,8 @@ def BFS(StartingNode):
 #A* search version
 openA = []
 closedA = []
-leftSideA = []
+#leftSideA = []
+#most likely leftSideA will not be used since A* search since the process will involving looking at a grouping of nodes instead of a individual nodes
 rightSideA = []
 #var initialNode and TargetNode will be used for A* Search as well
 
@@ -196,8 +197,33 @@ rightSideA = []
 #once the node with the smallest f(n) value is selected then all of the other nodes in that grouping will sent to the closed list
 #that selected node will have the new nodes made of it and the process will repeat until the goal is reached
 
-def isValidA(left, right):
-    
+def RightSideA(openlist):
+    rightNode = []
+    rightSideA.clear() #Since this method is looking at it as a group, then each time this method is called, rightSideA needs to be cleared out for the next grouping to go in
+    #openlist will be a lists of lists i.e. [[1,1,1], [3,1,0]]
+    #this method will use a for loop to pull each node
+    #the M and the C sections of the node will be subtracted by 3 and the B will have 1 or 0 set in their depending on the current B value in the node
+    #the results will be added onto the rightNode then that node will be added to the rightSideA list 
+    for x in openlist:
+        rightNode.append(initialNode[0] - x[0])
+        rightNode.append(initialNode[1] - x[1])
+
+        if (x[2] == 0):
+            rightNode.append(1)
+        elif (x[2] == 1):
+            rightNode.append(0)
+
+        rightSideA.append(rightNode)
+        rightNode.clear()
+
+#11/10:the method isValidA() is gonna be left unused for now since there needs to be a method made to make the nodes in the open list, have their right side versions made as well
+def isValidA():
+    #this method will look at the nodes that is contained in the openA and rightSideA lists via a for loop and checks to see which node is valid and what isn't
+    #if there is a node that is invalid then it will be stored in a list where it will be used in a .remove method to clear out the open and right side list of those nodes
+
+    #the rule to make sure that a node is valid is that:
+    #the numbers of cannibals can not outnumber the number of missionaires on either the left or right side.
+    #if the numbers of missionaires is greater than or equal to the number of cannibals then it is a valid node
     return True
 
 tii = [3,2,1]
