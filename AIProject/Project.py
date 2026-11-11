@@ -224,7 +224,161 @@ def isValidA():
     #the rule to make sure that a node is valid is that:
     #the numbers of cannibals can not outnumber the number of missionaires on either the left or right side.
     #if the numbers of missionaires is greater than or equal to the number of cannibals then it is a valid node
-    return True
+
+    notValid = []
+    notValidR = []
+
+    for node, rightnode in zip(openA, rightSideA):
+        LMissionairesO = node[0]
+        LCannibalsO = node[1]
+        RMissionairesO = rightnode[0]
+        RCannibalO = rightnode[1]
+
+        if(LMissionairesO < LCannibalsO and LMissionairesO != 0):
+            notValid.append(node)
+            notValidR.append(rightnode)
+        if (RMissionairesO < RCannibalO and RMissionairesO != 0):
+            notValid.append(node)
+            notValidR.append(rightnode)
+
+    #once the for loop is done, the next steps will remove the invalid nodes so that the valid nodes are left in openA and rightSideA
+    openA.remove(notValid)
+    rightSideA.remove(notValid)
+    closedA.append(notValid)
+
+def initialValidCheck(node):
+    #will be used to check to see if the initial node would be valid
+    #returns a True or False
+    #Its use would look like initialValidCheck(initialNode)
+    LM = node[0]
+    LC = node[1]
+
+    isValid = False if LM < LC and LM != 0 else True
+    
+    return isValid
+
+def countPresentTrip(CurrentCounter):
+    #This method would be called up in the code it will look like:
+    #count = 0
+    #(In the loop) count = countPresentTrip(Count)
+    CurrentCounter = CurrentCounter + 1
+    return CurrentCounter #this will be the g(n) value
+
+#11/10: the next few methods will focus on creating the next group of
+#nodes based on the only node left in the open space
+#the other method will focus on creating the possible trips that are
+#needed for the groups of nodes to reach the goal node.
+def nextNodes():
+    #the node that will go through here is the last node that will stay in the open list after all of the other nodes that were valid but did not have the f(n) value
+    #like the selected node is removed from open and put into closed 
+
+    #the method for picking the desired actions will be the same as the method to create new nodes in the BFS method except that the only node left in the open list
+    #will be popped out so that way the open list can be empty before the new nodes go in
+    #with the creations of new nodes, there has to be the nodes for the other side as well so the RightSideA will be called here
+
+    CurrentNode = openA.pop(0)
+
+    possibleActions = [[2, 0], [0, 2], [1, 0], [0, 1], [1, 1]]
+
+    if (CurrentNode[2] == 1):
+        #since the value on index 2 is 1 that means subtraction will occur
+        #looking for the actions that can't be used 
+        for x in possibleActions:
+            CurrentActionM = x[0]
+            CurrentActionC = x[1]
+
+            if (((CurrentNode[0] - CurrentActionM) < 0) or ((CurrentNode[1] - CurrentActionC) < 0)):
+                possibleActions.remove(x)
+
+        #the loop to make the nodes
+        for y in possibleActions:
+            newNode = []
+            NewMNode = CurrentNode[0] - y[0]
+            NewCNode = CurrentNode[1] - y[1]
+            newNode.append(NewMNode)
+            newNode.append(NewCNode)
+            newNode.append(0)
+            openA.append(newNode)
+            newNode = []
+    elif (CurrentNode[2] == 0):
+        #since the value on index 2 is 0 that means addition wil occur
+        #looking for actions that can't be used
+        for x in possibleActions:
+            CurrentActionM = x[0]
+            CurrentActionC = x[1]
+
+            if (((CurrentNode[0] + CurrentActionM) > initialNode[0]) or ((CurrentNode[1] + CurrentActionC) > initialNode[1])):
+                possibleActions.remove(x)
+
+            for y in possibleActions:
+                newNode = []
+                NewMNode = CurrentNode[0] + y[0]
+                NewCNode = CurrentNode[1] + y[1]
+                newNode.append(NewMNode)
+                newNode.append(NewCNode)
+                newNode.append(0)
+                openA.append(newNode)
+                newNode = []
+
+    #the part of this method where RightSideA() is called
+    RightSideA(openA)
+
+def futureActionCosts():
+    #this method will be calculating the h value of the f(n) = g(n) + h(n)
+    #in order to understand how to calculate the amount of actions needed in order
+    #the h value, the follow logic has been used
+
+    #When looking at all of the valid nodes in the open list, each node will be called upon via a for loop
+    #anytime a trip is made, there is a counter that will increase by 1
+    #in that for loop there will be a while loop that will keep on running until the node gets to [0, 0, 0]
+    #before that node will go into the while, that node will be put in a seperate variable so that way the node in the open list is not affected
+    #in the while loop, there will be a list of possible actions that is taken up during the move from left side to right side.
+    #There will also be two list, called UsedActionL and UsedActionR, these list represent the action that was used to get the node to left to right or right or left
+    #UsedActionR is the list that will store the action of the node that went left to right
+    #UsedActionL is the list that will store the action of the node that went right to left
+
+    #there will two conditionals based on what is the boat value on the node when it begins a loop 
+    #if the boat value is set to 1 then the actions to make the node for the next loop will have subtraction involved
+    #if the boat value is 1 then the possible actions list will used to check which action will be used to make the node of the next loop
+    #there are the conditions for the action to be used for the next action:
+    #that the difference of next cannibals value will not be greater then the value of the difference of next missionaries
+    #The rightside version of the node will not have the number of cannibals outnumber the number of missionaires
+    #that the difference of either the cannibals or missionaries does not fall below zero
+    #that the action that was used to get it to the left side can not be used again to avoid canceling the progress made
+    #if the future action meets those conditions then it will be used to create the next loop node and that action will added to UsedActionL while the action that 
+    #was in UsedActionR is removed
+    #then there will be increase in the h value by one.
+
+    #if the boat value is set to 0 then the action to make the node for the next loop will have addition involved
+    #if the boat value is set to 0 then the possible actions list will used to check which action will be used to make the node of the next loop
+    #there are the conditions for the action to be used for the next action:
+    #that the sum of the next cannibals value will not be greater then the value of the sum of the next missionaries
+    #The rightside version of the node will not have the number of cannibals outnumber the number of missionaires
+    #that the sume of either the cannibals or missionaries does not go above the initial value
+    #that the action that was used to get it to the right side can not be used again to avoid canceling the progress made
+    #if the future action meets those conditions then it will be used to create the next loop node and that action will added to UsedActionR while the action that 
+    #was in UsedActionL is removed
+    #then there will be increase in the h value by one.
+
+    target = [0, 0, 0]
+    UsedActionR = []
+    UsedActionL = []
+    hValues = []
+    NumofTrips = 0
+
+    #the loops to determine h values
+    for x in openA:
+        Node = x
+        while (node == target):
+            NextActions = [[2, 0], [0, 2], [1, 0], [0, 1], [1, 1]]
+
+            if (node[2] == 1):
+                #subtraction will occur
+                if ()
+        hValues.append(NumofTrips)
+
+    return hValues
+    
 
 tii = [3,2,1]
 itt = 2
