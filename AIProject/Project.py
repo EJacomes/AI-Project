@@ -369,15 +369,56 @@ def futureActionCosts():
     #the loops to determine h values
     for x in openA:
         Node = x
-        while (node == target):
+        while (Node == target):
             NextActions = [[2, 0], [0, 2], [1, 0], [0, 1], [1, 1]]
 
-            if (node[2] == 1):
-                #subtraction will occur
-                if ()
+            for A in NextActions:
+                if (Node[2] == 1):
+                    #subtraction will occur
+                    #4 conditions in one if statement broken up using and statement
+                    if ((Node[1] - A[1] <= Node[0] - A[0]) and (initialNode[1] - (Node[1] - A[1]) <= initialNode[0] - (Node[0] - A[0])) and ((Node[0] - A[0] >= 0) or (Node[1] - A[1] >= 0)) and (UsedActionR[0] == A)):
+                        UsedActionR = []
+                        UsedActionL.append(A)
+                        
+                        Node[0] = Node[0] - A[0]
+                        Node[1] = Node[1] - A[1]
+                        Node[2] = 0
+                        NumofTrips = NumofTrips + 1
+                        break
+                elif (Node == 0):
+                    #addition will occur
+                    if ((Node[1] + A[1] <= Node[0] + A[0]) and (initialNode[1] - (Node[1] + A[1]) <= initialNode[0] - (Node[0] + A[0])) and ((Node[0] + A[0] <= initialNode[0]) or (Node[1] + A[1] <= initialNode[1])) and (UsedActionL[0] == A)):
+                        UsedActionL = []
+                        UsedActionR.append(A)
+                        Node[0] = Node[0] + A[0]
+                        Node[1] = Node[1] + A[1]
+                        Node[2] = 1
+                        NumofTrips = NumofTrips + 1
+                        break
+            
         hValues.append(NumofTrips)
 
     return hValues
+
+def ASearch(InitialNode):
+    #this will be the function where the A search will occur
+    #the logic that will be used in order to perform the A search will be
+    #there will be variable that will count the number of trips that were made since the beginning and each time that g value increase then countPresentTrip method will be called
+    #first the method initialValidCheck method will be used on the InitialNode to see if it is valid
+    #if the InitialNode is declared as valid then it will lead to a loop that will run until the target of [0, 0, 0] is met
+    #in that loop, the flow of logic will be:
+    #nextNodes() -> isValidA() -> h = futureActionCosts() -> loop(f = g + h[index]) -> checking to see which node has lowest f score and remove the other nodes
+    # -> countPresentTrip() and increase the nodes var -> repeat until target is reached
+
+    PresentTrips = 0
+    nodes = 0
+
+    #the A search loop
+    
+
+    print("You reached the target node of [0, 0, 0] in", nodes, "nodes")
+
+
     
 
 tii = [3,2,1]
