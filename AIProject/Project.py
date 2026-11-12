@@ -89,6 +89,7 @@ def createNodes(node):
     #if there any action that is unable to be used then it will be popped out from the PossibleAction list and into the NotUsed list
 
     PossibleAction = [[2, 0], [0, 2], [1, 0], [0, 1], [1, 1]]
+    notUsed = []
 
     #this part will refer to when (M, C, 1)
     if (node[0][2] == 1):
@@ -99,7 +100,10 @@ def createNodes(node):
             currentActionC = x[1]
 
             if (((node[0][0] - currentActionM) < 0) or ((node[0][1]- currentActionC) < 0)):
-                PossibleAction.remove(x)
+                notUsed.append(x)
+
+        for z in notUsed:
+            PossibleAction.remove(z)
 
         #another loop used to make the nodes
         for y in PossibleAction:
@@ -119,7 +123,10 @@ def createNodes(node):
             currentActionC = x[1]
 
             if (((node[0][0] + currentActionM) > initialNode[0]) or ((node[0][1] + currentActionC) > initialNode[1])):
-                PossibleAction.remove(x)
+                notUsed.append(x)
+
+        for z in PossibleAction:
+            PossibleAction.remove(z)
 
         #another loop used to make the nodes
         for y in PossibleAction:
@@ -166,10 +173,10 @@ def BFS(StartingNode):
     print("BFS was able to reach to goal node [0, 0, 0] in",numNodes,'nodes')
 
 
-#time1 = time()
-#BFS(initialNode)
-#time2 = time() - time1
-#print("The time it took for BFS to reach the goal was", time2, "seconds")
+time1 = time()
+BFS(initialNode)
+time2 = time() - time1
+print("The time it took for BFS to reach the goal was", time2, "seconds")
 
 #time3 = time()
 #initialNode = [6, 6, 1]
@@ -214,7 +221,9 @@ def RightSideA(openlist):
             rightNode.append(0)
 
         rightSideA.append(rightNode)
-        rightNode.clear()
+        #print(rightSideA)
+        rightNode = []
+        #print("After the Clear",rightSideA)
 
 #11/10:the method isValidA() is gonna be left unused for now since there needs to be a method made to make the nodes in the open list, have their right side versions made as well
 def isValidA():
@@ -229,6 +238,8 @@ def isValidA():
     notValidR = []
 
     for node, rightnode in zip(openA, rightSideA):
+        #print(openA)
+        #print(rightSideA)
         LMissionairesO = node[0]
         LCannibalsO = node[1]
         RMissionairesO = rightnode[0]
@@ -242,9 +253,14 @@ def isValidA():
             notValidR.append(rightnode)
 
     #once the for loop is done, the next steps will remove the invalid nodes so that the valid nodes are left in openA and rightSideA
-    openA.remove(notValid)
-    rightSideA.remove(notValid)
+    for y in notValid:
+        openA.remove(y)
+
+    for z in notValidR:
+        rightSideA.remove(z)
+    
     closedA.append(notValid)
+    #print("finished")
 
 def initialValidCheck(node):
     #will be used to check to see if the initial node would be valid
@@ -277,6 +293,7 @@ def nextNodes():
     #with the creations of new nodes, there has to be the nodes for the other side as well so the RightSideA will be called here
 
     CurrentNode = openA.pop(0)
+    notUsed = []
 
     possibleActions = [[2, 0], [0, 2], [1, 0], [0, 1], [1, 1]]
 
@@ -288,7 +305,10 @@ def nextNodes():
             CurrentActionC = x[1]
 
             if (((CurrentNode[0] - CurrentActionM) < 0) or ((CurrentNode[1] - CurrentActionC) < 0)):
-                possibleActions.remove(x)
+                notUsed.append(x)
+
+        for z in notUsed:
+            possibleActions.remove(z)
 
         #the loop to make the nodes
         for y in possibleActions:
@@ -308,97 +328,90 @@ def nextNodes():
             CurrentActionC = x[1]
 
             if (((CurrentNode[0] + CurrentActionM) > initialNode[0]) or ((CurrentNode[1] + CurrentActionC) > initialNode[1])):
-                possibleActions.remove(x)
+                notUsed.append(x)
 
-            for y in possibleActions:
-                newNode = []
-                NewMNode = CurrentNode[0] + y[0]
-                NewCNode = CurrentNode[1] + y[1]
-                newNode.append(NewMNode)
-                newNode.append(NewCNode)
-                newNode.append(0)
-                openA.append(newNode)
-                newNode = []
+        for z in notUsed:
+            possibleActions.remove(z)
+
+        for y in possibleActions:
+            newNode = []
+            NewMNode = CurrentNode[0] + y[0]
+            NewCNode = CurrentNode[1] + y[1]
+            newNode.append(NewMNode)
+            newNode.append(NewCNode)
+            newNode.append(1)
+            openA.append(newNode)
+            newNode = []
 
     #the part of this method where RightSideA() is called
     RightSideA(openA)
+    #print(rightSideA)
 
 def futureActionCosts():
-    #this method will be calculating the h value of the f(n) = g(n) + h(n)
-    #in order to understand how to calculate the amount of actions needed in order
-    #the h value, the follow logic has been used
-
-    #When looking at all of the valid nodes in the open list, each node will be called upon via a for loop
-    #anytime a trip is made, there is a counter that will increase by 1
-    #in that for loop there will be a while loop that will keep on running until the node gets to [0, 0, 0]
-    #before that node will go into the while, that node will be put in a seperate variable so that way the node in the open list is not affected
-    #in the while loop, there will be a list of possible actions that is taken up during the move from left side to right side.
-    #There will also be two list, called UsedActionL and UsedActionR, these list represent the action that was used to get the node to left to right or right or left
-    #UsedActionR is the list that will store the action of the node that went left to right
-    #UsedActionL is the list that will store the action of the node that went right to left
-
-    #there will two conditionals based on what is the boat value on the node when it begins a loop 
-    #if the boat value is set to 1 then the actions to make the node for the next loop will have subtraction involved
-    #if the boat value is 1 then the possible actions list will used to check which action will be used to make the node of the next loop
-    #there are the conditions for the action to be used for the next action:
-    #that the difference of next cannibals value will not be greater then the value of the difference of next missionaries
-    #The rightside version of the node will not have the number of cannibals outnumber the number of missionaires
-    #that the difference of either the cannibals or missionaries does not fall below zero
-    #that the action that was used to get it to the left side can not be used again to avoid canceling the progress made
-    #if the future action meets those conditions then it will be used to create the next loop node and that action will added to UsedActionL while the action that 
-    #was in UsedActionR is removed
-    #then there will be increase in the h value by one.
-
-    #if the boat value is set to 0 then the action to make the node for the next loop will have addition involved
-    #if the boat value is set to 0 then the possible actions list will used to check which action will be used to make the node of the next loop
-    #there are the conditions for the action to be used for the next action:
-    #that the sum of the next cannibals value will not be greater then the value of the sum of the next missionaries
-    #The rightside version of the node will not have the number of cannibals outnumber the number of missionaires
-    #that the sume of either the cannibals or missionaries does not go above the initial value
-    #that the action that was used to get it to the right side can not be used again to avoid canceling the progress made
-    #if the future action meets those conditions then it will be used to create the next loop node and that action will added to UsedActionR while the action that 
-    #was in UsedActionL is removed
-    #then there will be increase in the h value by one.
-
+    #Calculates the heuristic h(n) value for each node currently in openA,
+    #representing the exact minimum number of trips from that node to [0, 0, 0].
+    
     target = [0, 0, 0]
-    UsedActionR = []
-    UsedActionL = []
     hValues = []
-    NumofTrips = 0
-
-    #the loops to determine h values
+    
     for x in openA:
-        Node = x
-        while (Node == target):
-            NextActions = [[2, 0], [0, 2], [1, 0], [0, 1], [1, 1]]
-
-            for A in NextActions:
-                if (Node[2] == 1):
-                    #subtraction will occur
-                    #4 conditions in one if statement broken up using and statement
-                    if ((Node[1] - A[1] <= Node[0] - A[0]) and (initialNode[1] - (Node[1] - A[1]) <= initialNode[0] - (Node[0] - A[0])) and ((Node[0] - A[0] >= 0) or (Node[1] - A[1] >= 0)) and (UsedActionR[0] == A)):
-                        UsedActionR = []
-                        UsedActionL.append(A)
-                        
-                        Node[0] = Node[0] - A[0]
-                        Node[1] = Node[1] - A[1]
-                        Node[2] = 0
-                        NumofTrips = NumofTrips + 1
-                        break
-                elif (Node == 0):
-                    #addition will occur
-                    if ((Node[1] + A[1] <= Node[0] + A[0]) and (initialNode[1] - (Node[1] + A[1]) <= initialNode[0] - (Node[0] + A[0])) and ((Node[0] + A[0] <= initialNode[0]) or (Node[1] + A[1] <= initialNode[1])) and (UsedActionL[0] == A)):
-                        UsedActionL = []
-                        UsedActionR.append(A)
-                        Node[0] = Node[0] + A[0]
-                        Node[1] = Node[1] + A[1]
-                        Node[2] = 1
-                        NumofTrips = NumofTrips + 1
-                        break
+        # Create a safe copy of the node to avoid mutating openA
+        queue = [(list(x), 0)]
+        visited = {tuple(x)}
+        trips = 0
+        found = False
+        
+        while queue:
+            curr, count = queue.pop(0)
             
-        hValues.append(NumofTrips)
-
-    return hValues
+            if curr == target:
+                trips = count
+                found = True
+                break
+                
+            possibleActions = [[2, 0], [0, 2], [1, 0], [0, 1], [1, 1]]
+            M, C, B = curr[0], curr[1], curr[2]
+            
+            if B == 1:
+                # Boat is on the starting side: moving people across (subtraction)
+                for action in possibleActions:
+                    newM = M - action[0]
+                    newC = C - action[1]
+                    
+                    if newM >= 0 and newC >= 0:
+                        RM = initialNode[0] - newM
+                        RC = initialNode[1] - newC
+                        
+                        # Validate missionary/cannibal safety rules on both sides
+                        if (newM == 0 or newM >= newC) and (RM == 0 or RM >= RC):
+                            nextNodeState = [newM, newC, 0]
+                            if tuple(nextNodeState) not in visited:
+                                visited.add(tuple(nextNodeState))
+                                queue.append((nextNodeState, count + 1))
+            else:
+                # Boat is on the opposite side: returning people back (addition)
+                for action in possibleActions:
+                    newM = M + action[0]
+                    newC = C + action[1]
+                    
+                    if newM <= initialNode[0] and newC <= initialNode[1]:
+                        RM = initialNode[0] - newM
+                        RC = initialNode[1] - newC
+                        
+                        # Validate missionary/cannibal safety rules on both sides
+                        if (newM == 0 or newM >= newC) and (RM == 0 or RM >= RC):
+                            nextNodeState = [newM, newC, 1]
+                            if tuple(nextNodeState) not in visited:
+                                visited.add(tuple(nextNodeState))
+                                queue.append((nextNodeState, count + 1))
+        
+        # Fallback if a path somehow isn't found
+        if not found:
+            trips = 999 
+            
+        hValues.append(trips)
+        
+    return hValues   
 
 def ASearch(InitialNode):
     #this will be the function where the A search will occur
@@ -407,28 +420,40 @@ def ASearch(InitialNode):
     #first the method initialValidCheck method will be used on the InitialNode to see if it is valid
     #if the InitialNode is declared as valid then it will lead to a loop that will run until the target of [0, 0, 0] is met
     #in that loop, the flow of logic will be:
-    #nextNodes() -> isValidA() -> h = futureActionCosts() -> loop(f = g + h[index]) -> checking to see which node has lowest f score and remove the other nodes
-    # -> countPresentTrip() and increase the nodes var -> repeat until target is reached
+    #nextNodes() -> countPresentTrip() -> isValidA() -> h = futureActionCosts() -> loop(f = g + h[index]) -> checking to see which node has lowest f score and remove the other nodes
+    # -> increase the nodes var -> repeat until target is reached
 
-    PresentTrips = 0
+    PresentTrips = 0 #this is g
     nodes = 0
 
     #the A search loop
-    
+    if (initialValidCheck(InitialNode) == True):
+        openA.append(InitialNode)
+        while (TargetNode not in openA):
+            nextNodes()
+            PresentTrips = countPresentTrip(PresentTrips)
+            print("before:", openA)
+            print("rightSideA:", rightSideA)
+            isValidA()
+            print("inbetween:",openA)
+            h = futureActionCosts()
+            f = []
 
+            for hn in h:
+                f.append(PresentTrips + hn)
+
+            SmallestfIndex = f.index(min(f))
+
+            DesiredNode = openA[SmallestfIndex]
+            openA.clear()
+            openA.append(DesiredNode)
+            print("After:", openA)
+
+            
+            nodes = nodes + 1
     print("You reached the target node of [0, 0, 0] in", nodes, "nodes")
-
-
     
-
-tii = [3,2,1]
-itt = 2
-ion = []
-ion.append(tii)
-ion.append(itt)
-p = []
-p.append(ion)
-print(p)
-print(p[0])
-print(p[0][0])
-print(p[0][0][0])
+time5 = time()
+ASearch(initialNode)
+time6 = time() - time5
+print("The time it took for A* Search to reach the goal was", time6, "seconds")
